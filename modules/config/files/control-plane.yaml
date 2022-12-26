@@ -1,0 +1,23 @@
+write-kubeconfig-mode: "0644"
+
+%{ if length(token) > 0 }
+token: ${token}
+%{ endif }
+
+%{ if length(server) > 0 }
+server: https://${server}:9345
+%{ endif }
+
+%{ if length(tls_san) > 0 }
+tls-san:
+%{ for san in tls_san }
+- ${san}
+%{ endfor }
+%{ endif }
+
+etcd-s3: true
+etcd-s3-bucket: ${bucket_name}
+etcd-s3-region: ${bucket_region}
+etcd-s3-folder: etcd-backup
+etcd-snapshot-schedule-cron: "0 */4 * * *"
+etcd-snapshot-retention: 42

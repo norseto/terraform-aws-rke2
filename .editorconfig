@@ -1,0 +1,7 @@
+[*.tf]
+indent_style = space
+indent_size = 2
+
+[*.json,*.yaml,*.yml]
+indent_style = space
+indent_size = 2

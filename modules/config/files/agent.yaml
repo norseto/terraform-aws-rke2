@@ -1,0 +1,7 @@
+%{ if length(token) > 0 }
+token: ${token}
+%{ endif }
+
+%{ if length(server) > 0 }
+server: https://${server}:9345
+%{ endif }

@@ -1,0 +1,32 @@
+vpc:
+  name: rancher-vpc
+  cidr: 10.0.0.0/16
+
+  azs:
+  - ap-northeast-1a
+  - ap-northeast-1d
+  private_subnets:
+  - 10.0.1.0/24
+  - 10.0.2.0/24
+  public_subnets:
+  - 10.0.10.0/24
+  - 10.0.20.0/24
+  database_subnets:
+  - 10.0.110.0/24
+  - 10.0.120.0/24
+
+  enable_dns_hostnames: true
+
+  single_nat_gateway: true
+  enable_nat_gateway: true
+  enable_vpn_gateway: false
+
+security_groups:
+  ssh:
+    name: ssh-sg
+    description: Security group for SSH access.
+    use_name_prefix: false
+    ingress_rules:
+    - ssh-tcp
+    ingress_cidr_blocks:
+    - 1.2.3.4/32

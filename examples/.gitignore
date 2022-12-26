@@ -1,0 +1,3 @@
+# Local .terraform lock file
+.terraform.lock.hcl
+.terragrunt-cache

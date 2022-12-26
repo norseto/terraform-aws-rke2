@@ -1,0 +1,138 @@
+module "bucket" {
+  source = "./modules/bucket"
+
+  name   = local.base_name
+  bucket = local.bucket_name
+  tags   = local.tags
+
+  versioning = false
+}
+
+module "configs" {
+  source = "./modules/config"
+
+  bucket_id     = module.bucket.bucket.s3_bucket_id
+  bucket_region = module.bucket.bucket.s3_bucket_region
+  token         = local.token
+  server_fqdn   = local.server_fqdn
+  tls_san       = local.tls_san
+  tags          = local.tags
+
+  versioning = false
+}
+
+module "role_control_plane" {
+  source = "./modules/role"
+
+  name        = "${local.base_name}-control-plane"
+  description = "Cluster control plane role"
+  # TODO: merge capability
+  policies = merge(
+    local.s3bucket_policy,
+    local.eip_associate_policy,
+    local.targetgroup_register_policy
+  )
+  create_spotfleet_role = local.use_spotfleet
+}
+
+module "role_agent" {
+  source = "./modules/role"
+
+  name        = "${local.base_name}-agent"
+  description = "Cluster agent role"
+  # TODO: merge capability
+  policies = local.s3bucket_policy
+}
+
+module "control_plane" {
+  count  = length(local.replica_pools) > 0 ? 1 : 0
+  source = "./modules/node_pool"
+
+  prefix              = "${local.base_name}-"
+  use_asg             = false
+  single              = false
+  spot_fleet_role_arn = try(module.role_control_plane.spotfleet_iam_role.arn, "")
+
+  ssh_key_name = local.ssh_key_name
+  security_group_ids = concat(local.control_plane.security_group_ids,
+    [
+      module.inter_cluster_sg.security_group_id,
+      module.cluster_server_sg.security_group_id
+  ])
+  allocate_public_ip = local.control_plane.allocate_public_ip
+  subnet_ids         = local.control_plane.subnet_ids
+  pools              = local.replica_pools
+
+  iam_instance_profile_arn = module.role_control_plane.aws_iam_instance_profile.arn
+
+  user_data = base64encode(templatefile("${path.module}/userdata/control-plane-config.yaml", local.replacements))
+  target_group_arns = local.use_eip ? [] : [
+    aws_lb_target_group.cluster_server[0].arn,
+    aws_lb_target_group.cluster_api[0].arn,
+    aws_lb_target_group.kube_api[0].arn
+  ]
+
+  tags = merge(local.tags, {
+    ClusterName : local.base_name,
+    Role : "control-plane-replica"
+  })
+}
+
+module "control_plane_seed" {
+  source = "./modules/node_pool"
+
+  prefix              = "${local.base_name}-"
+  use_asg             = false
+  single              = true
+  spot_fleet_role_arn = try(module.role_control_plane.spotfleet_iam_role.arn, "")
+
+  ssh_key_name = local.ssh_key_name
+  security_group_ids = concat(local.control_plane.security_group_ids,
+    [
+      module.inter_cluster_sg.security_group_id,
+      module.cluster_server_sg.security_group_id
+  ])
+  allocate_public_ip = local.control_plane.allocate_public_ip
+  subnet_ids         = local.control_plane.subnet_ids
+  pools              = [local.seed_pool]
+
+  iam_instance_profile_arn = module.role_control_plane.aws_iam_instance_profile.arn
+
+  user_data = base64encode(templatefile("${path.module}/userdata/control-plane-seed.yaml", local.replacements))
+
+  target_group_arns = local.use_eip ? [] : [
+    aws_lb_target_group.cluster_server[0].arn,
+    aws_lb_target_group.cluster_api[0].arn,
+    aws_lb_target_group.kube_api[0].arn,
+  ]
+
+  tags = merge(local.tags, {
+    ClusterName : local.base_name,
+    Role : "control-plane-seed"
+  })
+}
+
+
+module "agent" {
+  source = "./modules/node_pool"
+
+  prefix  = "${local.base_name}-"
+  use_asg = true
+  single  = false
+
+  ssh_key_name       = local.ssh_key_name
+  security_group_ids = concat(local.agent.security_group_ids, [module.inter_cluster_sg.security_group_id])
+  allocate_public_ip = local.agent.allocate_public_ip
+  subnet_ids         = local.agent.subnet_ids
+  pools              = local.agent.nodepools
+
+  iam_instance_profile_arn = module.role_agent.aws_iam_instance_profile.arn
+
+  user_data         = base64encode(templatefile("${path.module}/userdata/agent-config.yaml", local.replacements))
+  target_group_arns = []
+
+  tags = merge(local.tags, {
+    ClusterName : local.base_name
+    Role : "agent"
+  })
+}

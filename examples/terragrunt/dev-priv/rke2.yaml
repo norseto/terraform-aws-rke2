@@ -1,0 +1,81 @@
+rke-cluster:
+  # Cluster name
+  cluster_name: sample
+
+  # Cluster control plane API server FQDN
+  # This module don't register domain name of this FQDN
+  # server_fqdn: rke2.your.domain.com
+
+  # Server Token: Shared secret used to join a server or agent to a cluster
+  token: <RANDOM_SECRET>
+
+  # SSH Key Name: SSH key set to nodes.
+  # ssh_key_name: MyKey
+
+  # Extra SSH Keys:
+  extra_ssh_keys:
+  - "YOUR SSH PUBLIC KEY"
+  
+  # White list for Cluster control plane API server
+  api_endpoint_ip_white_list:
+  - 1.2.3.4/32
+
+  # Add CriticalAddonsOnly=true:NoExecute taint to server nodes.
+  # add_server_taint: true
+
+  # Disable Nginx ingress controller
+  disabled_server_charts:
+  - rke2-ingress-nginx
+
+  # RKE2 version
+  # rke2_version: v1.20.8+rke2r1
+
+  # Controll Plane nodes will be created as Fleet. You should set spot_max_price
+  # to use spot instances.
+  # If single: true specified, Single control plane with EIP and private Route53 zone
+  # will be used and no loadbalancer will be created.
+  # cpu_credits value will be valid only if all instance types are t*
+  control_plane:
+    allocate_public_ip: false
+    # Single: Single control plane. Use not LoadBalancer but EIP and private domain. Needs public IP.
+    single: false
+    nodepools: 
+    - name: control-plane-seed
+      size: 0
+      instance_types: ["t3a.medium","t3.medium"]
+      cpu_credits: standard
+      instances_distribution:
+        on_demand_allocation_strategy: lowest-price
+        spot_allocation_strategy: lowest-price
+        spot_max_price: 0.015
+    - name: control-plane-01
+      size: 0
+      instance_types: ["t3a.medium","t3.medium"]
+      cpu_credits: unlimited
+      instances_distribution:
+        on_demand_allocation_strategy: lowest-price
+        spot_allocation_strategy: diversified
+        spot_max_price: 0.015
+
+  # Agent nodes will be created as Autoscaling Group
+  agent:
+    allocate_public_ip: false
+    nodepools:
+    - name: agent-pool-01
+      min_size: 0
+      max_size: 3
+      desired_capacity: 0
+      instance_types: ["t3a.small","t3.small"]
+      # cpu_credits: standard
+      instances_distribution:
+        # Base on-demand instances.
+        on_demand_base_capacity: 0
+        # On-demand allocation prioritized/lowest-price
+        on_demand_allocation_strategy: lowest-price
+        # On-demand instance percentage
+        on_demand_percentage_above_base_capacity: 0
+        # Spot allocation capacity-optimized/lowest-price
+        # AWS Recommend: capacity-optimized
+        # You cannot change lowest-price to capacity-optimized
+        spot_allocation_strategy: capacity-optimized
+        spot_max_price: 0.01
