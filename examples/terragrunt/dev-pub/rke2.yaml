@@ -7,7 +7,8 @@ rke-cluster:
   # server_fqdn: rke2.your.domain.com
 
   # Server Token: Shared secret used to join a server or agent to a cluster
-  token: <RANDOM_SECRET>
+  # If token is not specified, will be generated randomly.
+  # token: <RANDOM_SECRET>
 
   # SSH Key Name: SSH key set to nodes.
   # ssh_key_name: MyKey
@@ -36,9 +37,10 @@ rke-cluster:
   # will be used and no loadbalancer will be created.
   # cpu_credits value will be valid only if all instance types are t*
   control_plane:
-    allocate_public_ip: true
-    # Single: Single control plane. Use not LoadBalancer but EIP and private domain. Needs public IP.
+    # Single: Single control plane. Use not LoadBalancer but EIP and private domain.
+    # If single is true, all allocate_public_ip, include agent node, will be treated as true
     single: true
+    allocate_public_ip: true
     nodepools: 
     - name: control-plane-seed
       size: 0

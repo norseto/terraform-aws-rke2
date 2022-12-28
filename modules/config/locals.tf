@@ -18,11 +18,17 @@ locals {
     { name : "register-targetgroups.sh", content_type : "text/plain", empty : false },
   ]
 
+  # Control plane node configurations
+  add_server_taint       = var.add_server_taint
+  disabled_server_charts = var.disabled_server_charts
+
   replacements = {
     token : local.token
     server : local.server_fqdn
     tls_san : local.tls_san
     bucket_name : local.bucket_id
     bucket_region : local.bucket_region
+    server_taint : local.add_server_taint
+    disabled_server_charts : local.disabled_server_charts
   }
 }

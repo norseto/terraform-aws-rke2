@@ -1,3 +1,14 @@
+/**
+ * # terraform-aws-rke2
+ * Terraform module to buld a simple RKE2 cluster.
+ * ## Basic type
+ * Seed RKE2 server + server replica + Agents + 2NLB
+ * ![Basic](images/basic.png)
+ * ## Single type
+ * Seed RKE2 server + Agents + EIP + Private Domain
+ * ![Single](images/single.png)
+ */
+
 module "bucket" {
   source = "./modules/bucket"
 
@@ -11,12 +22,14 @@ module "bucket" {
 module "configs" {
   source = "./modules/config"
 
-  bucket_id     = module.bucket.bucket.s3_bucket_id
-  bucket_region = module.bucket.bucket.s3_bucket_region
-  token         = local.token
-  server_fqdn   = local.server_fqdn
-  tls_san       = local.tls_san
-  tags          = local.tags
+  bucket_id              = module.bucket.bucket.s3_bucket_id
+  bucket_region          = module.bucket.bucket.s3_bucket_region
+  token                  = local.token
+  server_fqdn            = local.server_fqdn
+  add_server_taint       = local.add_server_taint
+  disabled_server_charts = local.disabled_server_charts
+  tls_san                = local.tls_san
+  tags                   = local.tags
 
   versioning = false
 }
@@ -59,7 +72,7 @@ module "control_plane" {
       module.inter_cluster_sg.security_group_id,
       module.cluster_server_sg.security_group_id
   ])
-  allocate_public_ip = local.control_plane.allocate_public_ip
+  allocate_public_ip = local.use_eip ? true : local.control_plane.allocate_public_ip
   subnet_ids         = local.control_plane.subnet_ids
   pools              = local.replica_pools
 
@@ -92,7 +105,7 @@ module "control_plane_seed" {
       module.inter_cluster_sg.security_group_id,
       module.cluster_server_sg.security_group_id
   ])
-  allocate_public_ip = local.control_plane.allocate_public_ip
+  allocate_public_ip = local.use_eip ? true : local.control_plane.allocate_public_ip
   subnet_ids         = local.control_plane.subnet_ids
   pools              = [local.seed_pool]
 

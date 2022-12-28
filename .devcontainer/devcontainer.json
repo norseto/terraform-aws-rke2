@@ -30,7 +30,9 @@
 			"terragrunt": "0.40.2"
 		},
 		"norseto/vsc-feature/python-pip3": {},
-		"norseto/vsc-feature/awscli": {}
+		"norseto/vsc-feature/awscli": {},
+		"norseto/vsc-feature/terraform-tools": {},
+		"norseto/vsc-feature/terraform-diagrams": {}
 	},
 
 	"remoteEnv": {

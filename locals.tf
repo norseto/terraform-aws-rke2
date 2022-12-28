@@ -10,15 +10,16 @@ locals {
   vpc_cidr = data.aws_vpc.vpc.cidr_block
 
   # Config
-  bucket_name = length(var.bucket_name) > 0 ? var.bucket_name : "${local.base_name}-${local.account_id}-${local.region_name}"
-  token       = var.token == null ? "" : var.token
+  bucket_name  = length(var.bucket_name) > 0 ? var.bucket_name : "${local.base_name}-${local.account_id}-${local.region_name}"
+  config_token = var.token == null ? "" : var.token
+  token        = try(random_string.token[0].result, local.config_token)
 
-  use_eip       = local.control_plane.single
-  seed_eip_pub  = local.use_eip ? aws_eip.seed[0].public_ip : null
-  seed_eip_priv = local.use_eip ? aws_eip.seed[0].public_ip : null
+  use_eip      = local.control_plane.single
+  seed_eip     = local.use_eip ? aws_eip.seed[0] : null
+  seed_eip_pub = local.use_eip ? local.seed_eip.public_ip : null
 
   seed_eip_dns = local.use_eip ? format("ec2-%s.%s.compute.amazonaws.com",
-  replace(aws_eip.seed[0].public_ip, ".", "-"), local.region_name) : null
+  replace(local.seed_eip_pub, ".", "-"), local.region_name) : null
 
   seed_priv_domain = "${local.prefix}${var.cluster_name}.private"
   seed_priv_dns    = "seed.${local.seed_priv_domain}"
@@ -73,10 +74,15 @@ locals {
     server : local.server_fqdn
     api_endpoint : local.api_endpoint
     rke2_version : local.rke2_version
-    eip_allocation_id : try(aws_eip.seed[0].id, "")
+    eip_allocation_id : try(local.seed_eip.id, "")
     zone_id : try(aws_route53_zone.private[0].id, "")
     api_tg_arn : local.use_eip ? "" : aws_lb_target_group.kube_api[0].arn
     in_api_tg_arn : local.use_eip ? "" : aws_lb_target_group.cluster_api[0].arn
     in_srv_tg_arn : local.use_eip ? "" : aws_lb_target_group.cluster_server[0].arn
   }
+
+  # Server taints
+  add_server_taint = var.add_server_taint
+  # Disabled charts
+  disabled_server_charts = var.disabled_server_charts
 }

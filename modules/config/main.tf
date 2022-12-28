@@ -1,3 +1,8 @@
+/**
+ * # config
+ * Configuration files.
+ */
+
 resource "aws_s3_object" "configs" {
   for_each = { for c in local.configs : c.name => c if !c.empty }
 

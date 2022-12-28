@@ -3,7 +3,7 @@ locals {
   env_vars  = read_terragrunt_config(find_in_parent_folders("env.hcl"))
   env_name  = local.env_vars.locals.env
 
-  source_base_url = "${get_terragrunt_dir()}/../../../..//"
+  source_base_url = "github.com/norseto/terraform-aws-rke2"
 
   cluster = merge(
     local.rkeconfig.rke-cluster,
@@ -23,6 +23,7 @@ dependency "ssh_sg" {
 
 terraform {
   source = "${local.source_base_url}"
+  # source = "${local.source_base_url}?ref=v0.1.0"
 }
 
 inputs = merge(

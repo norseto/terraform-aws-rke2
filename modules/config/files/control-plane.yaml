@@ -15,6 +15,18 @@ tls-san:
 %{ endfor }
 %{ endif }
 
+%{ if server_taint }
+node-taint:
+- "CriticalAddonsOnly=true:NoExecute"
+%{ endif }
+
+%{ if length(disabled_server_charts) > 0 }
+disable:
+%{ for chart in disabled_server_charts }
+- ${chart}
+%{ endfor }
+%{ endif }
+
 etcd-s3: true
 etcd-s3-bucket: ${bucket_name}
 etcd-s3-region: ${bucket_region}

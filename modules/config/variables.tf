@@ -37,3 +37,15 @@ variable "tls_san" {
   type        = list(string)
   default     = []
 }
+
+variable "add_server_taint" {
+  description = "True if add server taint"
+  type        = bool
+  default     = false
+}
+
+variable "disabled_server_charts" {
+  description = "Specify disabled server charts"
+  type        = list(string)
+  default     = []
+}

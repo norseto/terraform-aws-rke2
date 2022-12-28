@@ -1,3 +1,8 @@
+/**
+ * # bucket
+ * Create S3 bucket that contents in/out.
+ */
+
 module "bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "3.3.0"

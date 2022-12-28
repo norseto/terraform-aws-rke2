@@ -7,6 +7,21 @@ module "cluster_server_sg" {
   vpc_id          = local.vpc_id
   use_name_prefix = true
   ingress_with_cidr_blocks = concat([
+    {
+      from_port : 9345
+      to_port : 9345
+      protocol : 6
+      description : "internal Kubernetes API for LoadBalancers"
+      cidr_blocks : local.vpc_cidr
+    },
+    {
+      from_port : 6443
+      to_port : 6443
+      protocol : 6
+      description : "internal Kubernetes API for LoadBalancers"
+      cidr_blocks : local.vpc_cidr
+    }
+    ], [
     for b in local.api_endpoint_ip_white_list :
     {
       from_port : 6443
@@ -14,21 +29,6 @@ module "cluster_server_sg" {
       protocol : 6
       description : "Kubernetes API for external clients"
       cidr_blocks : b
-    }
-    ], [
-    {
-      from_port : 9345
-      to_port : 9345
-      protocol : 6
-      description : "internal Kubernetes API for cluster nodes"
-      cidr_blocks : local.vpc_cidr
-    },
-    {
-      from_port : 6443
-      to_port : 6443
-      protocol : 6
-      description : "internal Kubernetes API for cluster nodes"
-      cidr_blocks : local.vpc_cidr
     }
   ])
 }

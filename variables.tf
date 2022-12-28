@@ -120,3 +120,21 @@ variable "rke2_version" {
   type        = string
   default     = ""
 }
+
+variable "add_server_taint" {
+  description = <<EOD
+    True if add server taint.
+    Note: The NGINX Ingress and Metrics Server addons will not be deployed
+    when all nodes are tainted with CriticalAddonsOnly.
+    If your server nodes are so tainted, these addons will remain pending
+    until untainted agent nodes are added to the cluster.
+  EOD
+  type        = bool
+  default     = false
+}
+
+variable "disabled_server_charts" {
+  description = "Specify disabled server charts ammong rke2-canal, rke2-coredns, rke2-ingress-nginx, rke2-metrics-server"
+  type        = list(string)
+  default     = []
+}

@@ -1,3 +1,8 @@
+/**
+ * # role
+ * Creates IAM roles, instance profile for nodes.
+ */
+
 data "aws_partition" "current" {}
 data "aws_default_tags" "current" {}
 
