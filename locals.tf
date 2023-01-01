@@ -43,9 +43,6 @@ locals {
   seed_pool     = merge(local.server_pools[0], { max_size : 1 })
   replica_pools = length(local.server_pools) > 1 ? slice(local.server_pools, 1, length(local.server_pools)) : []
 
-  spot_prices   = [for p in local.server_pools : try(p.instances_distribution.spot_max_price, null)]
-  use_spotfleet = length(compact(local.spot_prices)) > 0
-
   s3bucket_policy = {
     s3bucket-policy : module.bucket.read_write_policy.arn
   }

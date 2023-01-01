@@ -33,9 +33,8 @@ locals {
   user_data         = var.user_data
   target_group_arns = var.target_group_arns
 
-  use_asg             = var.use_asg
-  single              = var.single
-  spot_fleet_role_arn = var.spot_fleet_role_arn
+  use_asg = var.use_asg
+  single  = var.single
 
   tags = var.tags
 

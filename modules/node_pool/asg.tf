@@ -67,12 +67,18 @@ module "node_pool" {
   ]
 
   # Set burstable instance to instance_type to avoid credit_specification is ignored.
-  instance_type = length([
-    for t in each.value.instance_types : t if startswith(t, "t")
-  ]) == length(each.value.instance_types) ? "t2.micro" : ""
+  instance_type = length(
+    [for t in each.value.instance_types : t if startswith(t, "t")]
+  ) == length(each.value.instance_types) ? "t2.micro" : ""
+
   credit_specification = {
     cpu_credits = each.value.cpu_credits
   }
 
   tags = merge(local.tags, { PoolName : each.key, Name : "${local.prefix}${each.key}" })
+
+  tag_specifications = [{
+    resource_type = "instance"
+    tags          = merge(local.tags, { PoolName : each.key, Name : "${local.prefix}${each.key}" })
+  }]
 }

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-LIFEC=$(curl -s -X GET "http://169.254.169.254/latest/meta-data/instance-life-cycle")
-if [ "x$LIFEC" = "xspot" ] ; then
-  exit 0
-fi
+# LIFEC=$(curl -s -X GET "http://169.254.169.254/latest/meta-data/instance-life-cycle")
+# if [ "x$LIFEC" = "xspot" ] ; then
+#   exit 0
+# fi
 
 if [ $# -lt 1 ] ; then
   echo "Usage $0 [TARGET_GROUP_ARN] [PORT] " 1>&2

@@ -43,9 +43,3 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
-
-variable "create_spotfleet_role" {
-  description = "true if spot fleet role creation."
-  type        = bool
-  default     = false
-}

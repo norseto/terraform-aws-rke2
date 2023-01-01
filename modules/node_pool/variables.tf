@@ -75,12 +75,6 @@ variable "single" {
   default     = false
 }
 
-variable "spot_fleet_role_arn" {
-  description = "Spot fleet role ARN."
-  type        = string
-  default     = ""
-}
-
 variable "pools" {
   description = "node pool configurations."
   type = list(object({

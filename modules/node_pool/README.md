@@ -27,8 +27,8 @@ Creates
 
 | Name | Type |
 |------|------|
-| [aws_ec2_fleet.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_fleet) | resource |
-| [aws_spot_fleet_request.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/spot_fleet_request) | resource |
+| [aws_ec2_fleet.ondemand](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_fleet) | resource |
+| [aws_ec2_fleet.spot](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_fleet) | resource |
 | [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 
 ## Inputs
@@ -43,7 +43,6 @@ Creates
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | prefix | `string` | `""` | no |
 | <a name="input_security_group_ids"></a> [security\_group\_ids](#input\_security\_group\_ids) | security groups | `list(string)` | `[]` | no |
 | <a name="input_single"></a> [single](#input\_single) | true if should be a single node. it is used when use\_asg is false. true for seed control plane. | `bool` | `false` | no |
-| <a name="input_spot_fleet_role_arn"></a> [spot\_fleet\_role\_arn](#input\_spot\_fleet\_role\_arn) | Spot fleet role ARN. | `string` | `""` | no |
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | instance ssh key name | `string` | `""` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | subnet ids | `list(string)` | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | tags | `map(string)` | `{}` | no |

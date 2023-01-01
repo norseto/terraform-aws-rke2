@@ -6,9 +6,6 @@ locals {
   profile_name = local.suffixes ? "${local.base_name}-profile" : local.base_name
   role_path    = var.role_path
 
-  spot_role_name        = local.suffixes ? "${local.base_name}-spotfleet" : "${local.base_name}-spotfleet"
-  create_spotfleet_role = var.create_spotfleet_role
-
   permissions_boundary = var.permissions_boundary
   description          = var.description
 

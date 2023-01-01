@@ -45,7 +45,6 @@ module "role_control_plane" {
     local.eip_associate_policy,
     local.targetgroup_register_policy
   )
-  create_spotfleet_role = local.use_spotfleet
 }
 
 module "role_agent" {
@@ -61,10 +60,9 @@ module "control_plane" {
   count  = length(local.replica_pools) > 0 ? 1 : 0
   source = "./modules/node_pool"
 
-  prefix              = "${local.base_name}-"
-  use_asg             = false
-  single              = false
-  spot_fleet_role_arn = try(module.role_control_plane.spotfleet_iam_role.arn, "")
+  prefix  = "${local.base_name}-"
+  use_asg = false
+  single  = false
 
   ssh_key_name = local.ssh_key_name
   security_group_ids = concat(local.control_plane.security_group_ids,
@@ -94,10 +92,9 @@ module "control_plane" {
 module "control_plane_seed" {
   source = "./modules/node_pool"
 
-  prefix              = "${local.base_name}-"
-  use_asg             = false
-  single              = true
-  spot_fleet_role_arn = try(module.role_control_plane.spotfleet_iam_role.arn, "")
+  prefix  = "${local.base_name}-"
+  use_asg = false
+  single  = true
 
   ssh_key_name = local.ssh_key_name
   security_group_ids = concat(local.control_plane.security_group_ids,
