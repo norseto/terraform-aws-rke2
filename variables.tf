@@ -82,6 +82,7 @@ variable "control_plane" {
       # TODO: Allow subnet IDs to be specified.
       name                   = string
       size                   = number
+      volume_size            = optional(number, 20)
       instance_types         = list(string)
       instances_distribution = any
       cpu_credits            = optional(string)
@@ -103,6 +104,7 @@ variable "agent" {
       max_size         = optional(number, 3)
       desired_capacity = optional(number, 3)
       instance_types   = optional(list(string), ["t3.medium"])
+      volume_size      = optional(number, 20)
       cpu_credits      = optional(string)
       instances_distribution = object({
         on_demand_base_capacity                  = optional(number)

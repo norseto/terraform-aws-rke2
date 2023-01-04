@@ -132,7 +132,7 @@ module "agent" {
 
   ssh_key_name       = local.ssh_key_name
   security_group_ids = concat(local.agent.security_group_ids, [module.inter_cluster_sg.security_group_id])
-  allocate_public_ip = local.agent.allocate_public_ip
+  allocate_public_ip = local.use_eip ? true : local.agent.allocate_public_ip
   subnet_ids         = local.agent.subnet_ids
   pools              = local.agent.nodepools
 

@@ -54,7 +54,7 @@ module "node_pool" {
         delete_on_termination : true
         encrypted : true
         volume_type : "gp2"
-        volume_size : 20
+        volume_size : each.value.volume_size
       }
     }
   ]
