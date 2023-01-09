@@ -51,6 +51,7 @@ Seed RKE2 server + Agents + EIP + Private Domain
 | [aws_lb_target_group.cluster_api](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 | [aws_lb_target_group.cluster_server](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 | [aws_lb_target_group.kube_api](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
+| [aws_placement_group.control_plane](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/placement_group) | resource |
 | [aws_route53_record.seed](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
 | [aws_route53_zone.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_zone) | resource |
 | [random_string.token](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
@@ -58,6 +59,7 @@ Seed RKE2 server + Agents + EIP + Private Domain
 | [aws_iam_policy_document.seed_eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.targetgroup_register_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+| [aws_route53_zone.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
 | [aws_vpc.vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
 ## Inputs
@@ -73,6 +75,7 @@ Seed RKE2 server + Agents + EIP + Private Domain
 | <a name="input_control_plane"></a> [control\_plane](#input\_control\_plane) | control plane configurations | <pre>object({<br>    subnet_ids         = list(string)<br>    security_group_ids = list(string)<br>    allocate_public_ip = bool<br>    # Single instance uses EIP<br>    single = optional(bool, false)<br>    nodepools = list(object({<br>      # TODO: Allow subnet IDs to be specified.<br>      name                   = string<br>      size                   = number<br>      volume_size            = optional(number, 20)<br>      instance_types         = list(string)<br>      instances_distribution = any<br>      cpu_credits            = optional(string)<br>    }))<br>  })</pre> | n/a | yes |
 | <a name="input_disabled_server_charts"></a> [disabled\_server\_charts](#input\_disabled\_server\_charts) | Specify disabled server charts ammong rke2-canal, rke2-coredns, rke2-ingress-nginx, rke2-metrics-server | `list(string)` | `[]` | no |
 | <a name="input_extra_ssh_keys"></a> [extra\_ssh\_keys](#input\_extra\_ssh\_keys) | extra ssh keys | `list(string)` | `[]` | no |
+| <a name="input_internal_zone_id"></a> [internal\_zone\_id](#input\_internal\_zone\_id) | Private Route53 zone id to register server node(s) when control\_plane.single is true.<br>    Zone sholud be associated with vpc | `string` | `null` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | name prefix | `string` | `""` | no |
 | <a name="input_rke2_version"></a> [rke2\_version](#input\_rke2\_version) | REK2 version like 'v1.20.8+rke2r1' | `string` | `""` | no |
 | <a name="input_server_fqdn"></a> [server\_fqdn](#input\_server\_fqdn) | server fqdn | `string` | `""` | no |

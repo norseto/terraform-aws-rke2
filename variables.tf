@@ -140,3 +140,12 @@ variable "disabled_server_charts" {
   type        = list(string)
   default     = []
 }
+
+variable "internal_zone_id" {
+  description = <<EOD
+    Private Route53 zone id to register server node(s) when control_plane.single is true.
+    Zone sholud be associated with vpc
+  EOD
+  type        = string
+  default     = null
+}

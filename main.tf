@@ -56,6 +56,12 @@ module "role_agent" {
   policies = local.s3bucket_policy
 }
 
+resource "aws_placement_group" "control_plane" {
+  name            = "${local.base_name}-control-plane"
+  strategy        = "partition"
+  partition_count = length(local.control_plane.subnet_ids)
+}
+
 module "control_plane" {
   count  = length(local.replica_pools) > 0 ? 1 : 0
   source = "./modules/node_pool"
@@ -82,6 +88,8 @@ module "control_plane" {
     aws_lb_target_group.cluster_api[0].arn,
     aws_lb_target_group.kube_api[0].arn
   ]
+
+  placement_group = aws_placement_group.control_plane.id
 
   tags = merge(local.tags, {
     ClusterName : local.base_name,
@@ -116,12 +124,13 @@ module "control_plane_seed" {
     aws_lb_target_group.kube_api[0].arn,
   ]
 
+  placement_group = aws_placement_group.control_plane.id
+
   tags = merge(local.tags, {
     ClusterName : local.base_name,
     Role : "control-plane-seed"
   })
 }
-
 
 module "agent" {
   source = "./modules/node_pool"

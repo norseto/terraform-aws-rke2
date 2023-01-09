@@ -11,3 +11,10 @@ resource "random_string" "token" {
   special          = true
   override_special = "/-=!?"
 }
+
+data "aws_route53_zone" "private" {
+  count = local.internal_zone_id == null ? 0 : 1
+
+  private_zone = true
+  zone_id      = local.internal_zone_id
+}

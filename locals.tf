@@ -9,6 +9,10 @@ locals {
 
   vpc_cidr = data.aws_vpc.vpc.cidr_block
 
+  # Private Zone ID for internal seed DNS
+  internal_zone_id  = var.internal_zone_id
+  internal_zone_arn = try(data.aws_route53_zone.private[0].arn, aws_route53_zone.private[0].arn)
+
   # Config
   bucket_name  = length(var.bucket_name) > 0 ? var.bucket_name : "${local.base_name}-${local.account_id}-${local.region_name}"
   config_token = var.token == null ? "" : var.token
@@ -21,8 +25,9 @@ locals {
   seed_eip_dns = local.use_eip ? format("ec2-%s.%s.compute.amazonaws.com",
   replace(local.seed_eip_pub, ".", "-"), local.region_name) : null
 
-  seed_priv_domain = "${local.prefix}${var.cluster_name}.private"
-  seed_priv_dns    = "seed.${local.seed_priv_domain}"
+  seed_priv_domain = try(data.aws_route53_zone.private[0].name, "${local.prefix}${var.cluster_name}.private")
+  seed_priv_host   = "seed-${local.prefix}${var.cluster_name}"
+  seed_priv_dns    = "${local.seed_priv_host}.${local.seed_priv_domain}"
 
   api_endpoint = local.use_eip ? local.seed_eip_dns : aws_lb.api_nlb[0].dns_name
   server_fqdn  = local.use_eip ? local.seed_priv_dns : aws_lb.cluster_nlb[0].dns_name
@@ -72,7 +77,7 @@ locals {
     api_endpoint : local.api_endpoint
     rke2_version : local.rke2_version
     eip_allocation_id : try(local.seed_eip.id, "")
-    zone_id : try(aws_route53_zone.private[0].id, "")
+    zone_id : try(aws_route53_zone.private[0].id, try(data.aws_route53_zone.private[0].id, ""))
     api_tg_arn : local.use_eip ? "" : aws_lb_target_group.kube_api[0].arn
     in_api_tg_arn : local.use_eip ? "" : aws_lb_target_group.cluster_api[0].arn
     in_srv_tg_arn : local.use_eip ? "" : aws_lb_target_group.cluster_server[0].arn

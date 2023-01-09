@@ -96,3 +96,9 @@ variable "pools" {
     })
   }))
 }
+
+variable "placement_group" {
+  description = "The name of the placement group into which you'll launch your instances, if any"
+  type        = string
+  default     = null
+}

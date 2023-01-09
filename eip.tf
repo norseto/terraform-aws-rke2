@@ -43,13 +43,13 @@ data "aws_iam_policy_document" "seed_eip" {
     ]
 
     resources = [
-      aws_route53_zone.private[0].arn
+      local.internal_zone_arn
     ]
   }
 }
 
 resource "aws_route53_zone" "private" {
-  count = local.use_eip ? 1 : 0
+  count = local.use_eip && local.internal_zone_id == null ? 1 : 0
 
   name = local.seed_priv_domain
 
@@ -63,7 +63,7 @@ resource "aws_route53_record" "seed" {
   count = local.use_eip ? 1 : 0
 
   name    = local.seed_priv_dns
-  zone_id = aws_route53_zone.private[0].zone_id
+  zone_id = try(aws_route53_zone.private[0].zone_id, data.aws_route53_zone.private[0].zone_id)
   type    = "A"
   ttl     = 300
   records = ["10.0.0.1"]
