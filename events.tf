@@ -84,8 +84,12 @@ resource "aws_cloudwatch_event_target" "delete_agent_cmd" {
 EOM
   }
   run_command_targets {
-    key    = "tag:SeedIdentity"
+    key    = "tag:ClusterName"
     values = [local.base_name]
+  }
+  run_command_targets {
+    key    = "tag:Role"
+    values = ["control-plane-seed", "control-plane-replica"]
   }
   retry_policy {
     maximum_event_age_in_seconds = 1800

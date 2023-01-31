@@ -128,8 +128,7 @@ module "control_plane_seed" {
 
   tags = merge(local.tags, {
     ClusterName : local.base_name,
-    Role : "control-plane-seed",
-    SeedIdentity : local.base_name
+    Role : "control-plane-seed"
   })
 }
 
