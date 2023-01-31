@@ -41,9 +41,7 @@ module "role_control_plane" {
   description = "Cluster control plane role"
   # TODO: merge capability
   policies = merge(
-    local.s3bucket_policy,
-    local.eip_associate_policy,
-    local.targetgroup_register_policy
+    local.server_policies
   )
 }
 
@@ -53,7 +51,9 @@ module "role_agent" {
   name        = "${local.base_name}-agent"
   description = "Cluster agent role"
   # TODO: merge capability
-  policies = local.s3bucket_policy
+  policies = merge(
+    local.agent_policies
+  )
 }
 
 resource "aws_placement_group" "control_plane" {
@@ -128,7 +128,8 @@ module "control_plane_seed" {
 
   tags = merge(local.tags, {
     ClusterName : local.base_name,
-    Role : "control-plane-seed"
+    Role : "control-plane-seed",
+    SeedIdentity : local.base_name
   })
 }
 

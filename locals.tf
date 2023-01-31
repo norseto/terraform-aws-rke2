@@ -48,15 +48,20 @@ locals {
   seed_pool     = merge(local.server_pools[0], { max_size : 1 })
   replica_pools = length(local.server_pools) > 1 ? slice(local.server_pools, 1, length(local.server_pools)) : []
 
-  s3bucket_policy = {
-    s3bucket-policy : module.bucket.read_write_policy.arn
+  agent_policies = {
+    s3bucket-policy : module.bucket.read_only_policy.arn
   }
-  eip_associate_policy = local.use_eip ? {
-    eip-policy : aws_iam_policy.eip_associate_policy[0].arn
-  } : {}
-  targetgroup_register_policy = local.use_eip ? {} : {
-    targetgroup-policy : aws_iam_policy.targetgroup_register_policy[0].arn
-  }
+  server_policies = merge(
+    {
+      AmazonEC2ReadOnlyAccess : "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
+      s3bucket-policy : module.bucket.read_write_policy.arn
+    },
+    local.use_eip ? {
+      eip-policy : aws_iam_policy.eip_associate_policy[0].arn
+      } : {
+      targetgroup-policy : aws_iam_policy.targetgroup_register_policy[0].arn
+    }
+  )
 
   # Agent
   agent = merge(var.agent, { ssh_key_name : local.ssh_key_name })
@@ -87,4 +92,10 @@ locals {
   add_server_taint = var.add_server_taint
   # Disabled charts
   disabled_server_charts = var.disabled_server_charts
+
+  # For Events
+  agent_asg_groupnames = module.agent.autoscaling_group_names
+  event_bus_agent      = length(local.agent_asg_groupnames) > 0
+
+  event_bus = local.event_bus_agent
 }

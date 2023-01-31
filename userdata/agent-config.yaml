@@ -16,5 +16,6 @@ runcmd:
 - curl -sfL https://get.rke2.io | ${rke2_version} INSTALL_RKE2_TYPE="agent" sh -
 - mkdir -p /etc/rancher/rke2/
 - aws s3 cp s3://${bucket}/config/agent.yaml /etc/rancher/rke2/config.yaml
+- printf "\n%s:\n- node.kubernetes.io/instance-id=%s\n" "node-label" "$(curl -s http://169.254.169.254/latest/meta-data/instance-id)" | tee -a /etc/rancher/rke2/config.yaml
 - systemctl enable rke2-agent.service
 - systemctl start rke2-agent.service

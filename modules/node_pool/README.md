@@ -8,7 +8,7 @@ Creates
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.2 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.14 |
 
 ## Providers
@@ -57,3 +57,4 @@ Creates
 |------|-------------|
 | <a name="output_autoscaling_group_arns"></a> [autoscaling\_group\_arns](#output\_autoscaling\_group\_arns) | List of arn of autoscaling group generated |
 | <a name="output_autoscaling_group_ids"></a> [autoscaling\_group\_ids](#output\_autoscaling\_group\_ids) | List of id of autoscaling group generated |
+| <a name="output_autoscaling_group_names"></a> [autoscaling\_group\_names](#output\_autoscaling\_group\_names) | List of name of autoscaling group generated |
