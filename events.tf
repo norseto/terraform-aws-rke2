@@ -18,7 +18,12 @@ data "aws_iam_policy_document" "event_bus_role_policy" {
     condition {
       test     = "StringEquals"
       variable = "ec2:ResourceTag/Role"
-      values   = ["control-plane-seed"]
+      values   = ["control-plane-seed", "control-plane-replica", "agent"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:ResourceTag/ClusterName"
+      values   = [local.base_name]
     }
   }
   statement {
