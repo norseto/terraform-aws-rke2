@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "event_bus_role_policy" {
 resource "aws_iam_role" "event_bus_delete_agent_role" {
   count = local.event_bus_agent ? 1 : 0
 
-  name               = "${local.base_name}-delete-agent-role"
+  name               = "${local.base_name}-run-command-role"
   assume_role_policy = data.aws_iam_policy_document.event_bus_role_assume_policy.json
   inline_policy {
     name   = "${local.base_name}-invoke-run-command"

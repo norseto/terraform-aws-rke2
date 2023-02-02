@@ -22,6 +22,8 @@ module "node_pool" {
   desired_capacity   = each.value.desired_capacity
   capacity_rebalance = false
 
+  ignore_desired_capacity_changes = each.value.ignore_desired_capacity_changes
+
   target_group_arns = local.target_group_arns
 
   use_mixed_instances_policy = true

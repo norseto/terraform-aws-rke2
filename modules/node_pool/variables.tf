@@ -86,6 +86,9 @@ variable "pools" {
     instance_types   = list(string)
     cpu_credits      = optional(string, "standard")
     volume_size      = optional(number, 20)
+
+    ignore_desired_capacity_changes = optional(bool, true)
+
     # For control plane, spot will be used when spot_max_price is set.
     instances_distribution = object({
       on_demand_base_capacity                  = optional(number)

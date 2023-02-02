@@ -148,7 +148,7 @@ module "agent" {
   iam_instance_profile_arn = module.role_agent.aws_iam_instance_profile.arn
 
   user_data         = base64encode(templatefile("${path.module}/userdata/agent-config.yaml", local.replacements))
-  target_group_arns = []
+  target_group_arns = local.agent.target_group_arns
 
   tags = merge(local.tags, {
     ClusterName : local.base_name

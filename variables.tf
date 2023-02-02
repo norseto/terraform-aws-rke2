@@ -98,6 +98,7 @@ variable "agent" {
     subnet_ids         = list(string)
     security_group_ids = list(string)
     allocate_public_ip = bool
+    target_group_arns  = optional(list(string), [])
     nodepools = list(object({
       name             = string
       min_size         = optional(number, 1)
@@ -106,6 +107,9 @@ variable "agent" {
       instance_types   = optional(list(string), ["t3.medium"])
       volume_size      = optional(number, 20)
       cpu_credits      = optional(string)
+
+      ignore_desired_capacity_changes = optional(bool, true)
+
       instances_distribution = object({
         on_demand_base_capacity                  = optional(number)
         on_demand_allocation_strategy            = optional(string)
