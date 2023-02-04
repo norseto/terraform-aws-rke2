@@ -7,4 +7,7 @@ locals {
 
   versioning = var.versioning
   tags       = var.tags
+
+  backup_prefix         = var.backup_prefix
+  backup_retention_days = var.backup_retention_days
 }

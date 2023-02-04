@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "event_bus_role_policy" {
   }
 }
 
-resource "aws_iam_role" "event_bus_delete_agent_role" {
+resource "aws_iam_role" "event_bus_run_command_role" {
   count = local.event_bus_agent ? 1 : 0
 
   name               = "${local.base_name}-run-command-role"
@@ -62,7 +62,7 @@ resource "aws_cloudwatch_event_rule" "delete_agent" {
       "AutoScalingGroupName" : local.agent_asg_groupnames
     }
   })
-  role_arn = aws_iam_role.event_bus_delete_agent_role[0].arn
+  role_arn = aws_iam_role.event_bus_run_command_role[0].arn
   tags = {
     Cluster : local.base_name
   }
@@ -73,7 +73,7 @@ resource "aws_cloudwatch_event_target" "delete_agent_cmd" {
 
   arn      = "arn:aws:ssm:${local.region_name}::document/AWS-RunShellScript"
   rule     = aws_cloudwatch_event_rule.delete_agent[0].name
-  role_arn = aws_iam_role.event_bus_delete_agent_role[0].arn
+  role_arn = aws_iam_role.event_bus_run_command_role[0].arn
 
   input_transformer {
     input_paths = {

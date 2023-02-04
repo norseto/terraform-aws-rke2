@@ -21,3 +21,14 @@ variable "tags" {
   default     = {}
 }
 
+variable "backup_prefix" {
+  description = "etcd backup prefix"
+  type        = string
+  default     = "etcd-backup/"
+}
+
+variable "backup_retention_days" {
+  description = "Retention days for etcd backups"
+  type        = number
+  default     = 30
+}

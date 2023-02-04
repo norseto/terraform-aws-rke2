@@ -33,6 +33,8 @@ Create S3 bucket that contents in/out.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_backup_prefix"></a> [backup\_prefix](#input\_backup\_prefix) | etcd backup prefix | `string` | `"etcd-backup/"` | no |
+| <a name="input_backup_retention_days"></a> [backup\_retention\_days](#input\_backup\_retention\_days) | Retention days for etcd backups | `number` | `30` | no |
 | <a name="input_bucket"></a> [bucket](#input\_bucket) | bucket name | `string` | `""` | no |
 | <a name="input_name"></a> [name](#input\_name) | base name. | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | tags | `map(string)` | `{}` | no |

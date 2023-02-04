@@ -14,6 +14,17 @@ module "bucket" {
     enabled = local.versioning
   }
 
+  lifecycle_rule = [{
+    id : "Backup expiration"
+    enabled : true
+    expiration : {
+      days : local.backup_retention_days
+    }
+    filter : {
+      prefix : local.backup_prefix
+    }
+  }]
+
   tags = merge(local.tags, {
     Name : local.bucket
     Cluster : local.name
