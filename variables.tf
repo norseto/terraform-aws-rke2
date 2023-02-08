@@ -76,6 +76,7 @@ variable "control_plane" {
     subnet_ids         = list(string)
     security_group_ids = list(string)
     allocate_public_ip = bool
+    policy             = optional(map(string), {})
     # Single instance uses EIP
     single = optional(bool, false)
     nodepools = list(object({
@@ -98,6 +99,7 @@ variable "agent" {
     subnet_ids         = list(string)
     security_group_ids = list(string)
     allocate_public_ip = bool
+    policy             = optional(map(string), {})
     target_group_arns  = optional(list(string), [])
     nodepools = list(object({
       name             = string

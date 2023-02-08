@@ -4,13 +4,31 @@ data "aws_iam_policy_document" "event_bus_role_assume_policy" {
     actions = ["sts:AssumeRole"]
 
     principals {
-      type        = "Service"
-      identifiers = ["events.amazonaws.com"]
+      type = "Service"
+      identifiers = [
+        "events.amazonaws.com",
+        "ssm.amazonaws.com"
+      ]
     }
   }
 }
 
 data "aws_iam_policy_document" "event_bus_role_policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["ssm:SendCommand"]
+    resources = ["arn:aws:ec2:${local.region_name}:*:instance/*"]
+    condition {
+      test     = "StringEquals"
+      variable = "ssm:resourceTag/Role"
+      values   = ["control-plane-seed", "control-plane-replica", "agent"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "ssm:resourceTag/ClusterName"
+      values   = [local.base_name]
+    }
+  }
   statement {
     effect    = "Allow"
     actions   = ["ssm:SendCommand"]
@@ -30,14 +48,23 @@ data "aws_iam_policy_document" "event_bus_role_policy" {
     effect  = "Allow"
     actions = ["ssm:SendCommand"]
     resources = [
-      "arn:aws:ssm:${local.region_name}:*:document/AWS-RunShellScript"
+      "arn:aws:ssm:${local.region_name}:*:document/AWS-RunShellScript",
+      aws_ssm_document.restart_rke2.arn,
+      aws_ssm_document.restore_server.arn,
     ]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "iam:PassRole",
+      "ssm:ListCommands",
+      "ssm:ListCommandInvocations"
+    ]
+    resources = ["*"]
   }
 }
 
-resource "aws_iam_role" "event_bus_run_command_role" {
-  count = local.event_bus_agent ? 1 : 0
-
+resource "aws_iam_role" "ssm_run_command_role" {
   name               = "${local.base_name}-run-command-role"
   assume_role_policy = data.aws_iam_policy_document.event_bus_role_assume_policy.json
   inline_policy {
@@ -62,7 +89,7 @@ resource "aws_cloudwatch_event_rule" "delete_agent" {
       "AutoScalingGroupName" : local.agent_asg_groupnames
     }
   })
-  role_arn = aws_iam_role.event_bus_run_command_role[0].arn
+  role_arn = aws_iam_role.ssm_run_command_role.arn
   tags = {
     Cluster : local.base_name
   }
@@ -73,7 +100,7 @@ resource "aws_cloudwatch_event_target" "delete_agent_cmd" {
 
   arn      = "arn:aws:ssm:${local.region_name}::document/AWS-RunShellScript"
   rule     = aws_cloudwatch_event_rule.delete_agent[0].name
-  role_arn = aws_iam_role.event_bus_run_command_role[0].arn
+  role_arn = aws_iam_role.ssm_run_command_role.arn
 
   input_transformer {
     input_paths = {

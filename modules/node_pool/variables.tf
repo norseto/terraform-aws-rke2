@@ -95,7 +95,7 @@ variable "pools" {
       on_demand_allocation_strategy            = optional(string)
       on_demand_percentage_above_base_capacity = optional(number)
       spot_allocation_strategy                 = optional(string)
-      spot_max_price                           = optional(string)
+      spot_max_price                           = optional(string, null)
     })
   }))
 }

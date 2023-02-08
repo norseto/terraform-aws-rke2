@@ -48,10 +48,12 @@ locals {
   seed_pool     = merge(local.server_pools[0], { max_size : 1 })
   replica_pools = length(local.server_pools) > 1 ? slice(local.server_pools, 1, length(local.server_pools)) : []
 
-  agent_policies = {
-    s3bucket-policy : module.bucket.read_only_policy.arn
-  }
+  agent_policies = merge(
+    local.agent.policy,
+    { s3bucket-policy : module.bucket.read_only_policy.arn }
+  )
   server_policies = merge(
+    local.control_plane.policy,
     {
       AmazonEC2ReadOnlyAccess : "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
       s3bucket-policy : module.bucket.read_write_policy.arn

@@ -4,21 +4,11 @@ locals {
   iam_instance_profile_arn = var.iam_instance_profile_arn
 
   pools = var.pools
-  spot_pools = [
+  fleet_pools = local.use_asg ? [] : [
     for p in local.pools : merge(p, {
       fleet_size : local.single ? 1 : try(p.desired_capacity, try(p.max_size, try(p.min_size, 1)))
       requirements : length(p.instance_types) > 0 ? setproduct(local.subnet_ids, p.instance_types) : []
-      alt_requirements : length(p.instance_types) > 0 ? [] : local.subnet_ids
     })
-    if !local.use_asg && try(p.instances_distribution.spot_max_price, null) != null
-  ]
-  ondemand_pool = [
-    for p in local.pools : merge(p, {
-      fleet_size : local.single ? 1 : try(p.desired_capacity, try(p.max_size, try(p.min_size, 1)))
-      requirements : length(p.instance_types) > 0 ? setproduct(local.subnet_ids, p.instance_types) : []
-      alt_requirements : length(p.instance_types) > 0 ? [] : local.subnet_ids
-    })
-    if !local.use_asg && try(p.instances_distribution.spot_max_price, null) == null
   ]
 
   instance_ami = data.aws_ami.this.id
