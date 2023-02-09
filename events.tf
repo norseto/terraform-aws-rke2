@@ -49,8 +49,10 @@ data "aws_iam_policy_document" "event_bus_role_policy" {
     actions = ["ssm:SendCommand"]
     resources = [
       "arn:aws:ssm:${local.region_name}:*:document/AWS-RunShellScript",
-      aws_ssm_document.restart_rke2.arn,
+      aws_ssm_document.control_rke2.arn,
       aws_ssm_document.restore_server.arn,
+      aws_ssm_document.update_kubeconfig.arn,
+      aws_ssm_document.take_snapshot.arn
     ]
   }
   statement {
