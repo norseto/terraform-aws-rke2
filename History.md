@@ -16,3 +16,6 @@ Add
 ## v0.3
 - Auto delete terminated agent node from cluster.
 - Restore automation.
+
+## v0.4
+- Better restore automation.

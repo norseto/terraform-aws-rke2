@@ -140,6 +140,7 @@ mainSteps:
     Parameters:
       Action: start
       TargetType: server
+      CleanNodes: 'yes'
     Targets:
     - Key: tag:ClusterName
       Values: [ "${local.base_name}" ]
@@ -238,6 +239,13 @@ parameters:
     allowedValues:
     - server
     - agent
+  CleanNodes:
+    type: String
+    description: "(Optional) Delete nodes except the target node"
+    allowedValues:
+    - 'yes'
+    - 'no'
+    default: 'no'
 mainSteps:
 - action: aws:runShellScript
   name: StopServer
@@ -245,6 +253,9 @@ mainSteps:
   inputs:
     runCommand:
     - "systemctl {{ Action }} rke2-{{ TargetType }}.service"
+    - "test 'yes' = '{{ CleanNodes }}' || exit 0"
+    - "for h in $(kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml get node -ojsonpath='{.items[*].metadata.name}') ; "
+    - "do if [ $h != $(hostname) ] ; then kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml delete node $h; fi ; done"
 DOC
   tags = {
     Cluster : local.base_name
@@ -276,16 +287,21 @@ mainSteps:
     runCommand:
     - "systemctl is-enabled rke2-server.service && \\"
     - "test -f /etc/rancher/rke2/control-plane-init.yaml || exit 0"
-    - "/usr/local/bin/rke2-killall.sh"
-    - "rm -rf {{ DataDir }}"
+    - "if [ -e /etc/rancher/rke2/restore.tmp ] ; then rm -f /etc/rancher/rke2/restore.tmp ; exit 0; fi"
     - "rke2 server --cluster-reset --cluster-reset-restore-path={{ Backup }}"
+    - "touch /etc/rancher/rke2/restore.tmp"
+    - "/usr/local/bin/rke2-killall.sh"
+    - "exit 194"
 - action: aws:runShellScript
   name: restoreRKE2Replica
   inputs:
     runCommand:
     - "systemctl is-enabled rke2-server.service && \\"
     - "test ! -f /etc/rancher/rke2/control-plane-init.yaml || exit 0"
+    - "if [ -e /etc/rancher/rke2/restore.tmp ] ; then rm -f /etc/rancher/rke2/restore.tmp ; exit 0; fi"
     - "rm -rf {{ DataDir }}"
+    - "touch /etc/rancher/rke2/restore.tmp"
+    - "exit 194"
 DOC
   tags = {
     Cluster : local.base_name
