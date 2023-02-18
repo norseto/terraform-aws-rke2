@@ -19,3 +19,5 @@ Add
 
 ## v0.4
 - Better restore automation.
+### v0.4.1
+- Fixed to reboot agents.

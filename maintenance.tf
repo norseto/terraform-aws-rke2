@@ -21,7 +21,7 @@ outputs:
 - StopServers.Output
 - RestoreSeed.Output
 - CleanupReplica.Output
-- StartAgents.Output
+- RebootAgents.Output
 - StartSeed.Output
 - StartReplicas.Output
 parameters:
@@ -169,11 +169,11 @@ mainSteps:
     - Key: tag:Role
       Values: ["control-plane-replica" ]
 
-- name: StartAgents
+- name: RebootAgents
   action: 'aws:runCommand'
   description: |
-    ## StartAgents
-    Start RKE2 agents of the all cluster node.
+    ## RebootAgents
+    Reboot RKE2 agents of the all cluster node.
     ## outputs
     * Output: Result
   timeoutSeconds: 600
@@ -183,7 +183,7 @@ mainSteps:
     DocumentName: ${aws_ssm_document.control_rke2.name}
     ServiceRoleArn: "${aws_iam_role.ssm_run_command_role.arn}"
     Parameters:
-      Action: start
+      Action: reboot
       TargetType: agent
     Targets:
     - Key: tag:ClusterName
@@ -233,6 +233,7 @@ parameters:
     - start
     - stop
     - restart
+    - reboot
   TargetType:
     type: String
     description: "(Required) Which target type server or agent"
@@ -248,10 +249,15 @@ parameters:
     default: 'no'
 mainSteps:
 - action: aws:runShellScript
-  name: StopServer
+  name: DoServerAction
   isEnd: true
   inputs:
     runCommand:
+    - "if [ 'reboot' = '{{ Action }}' ] ; then"
+    - "  if [ -e /etc/rancher/rke2/reboot.tmp ] ; then rm -f /etc/rancher/rke2/reboot.tmp ; exit 0; fi"
+    - "  touch /etc/rancher/rke2/reboot.tmp"
+    - "  exit 194"
+    - "fi"
     - "systemctl {{ Action }} rke2-{{ TargetType }}.service"
     - "test 'yes' = '{{ CleanNodes }}' || exit 0"
     - "for h in $(kubectl --kubeconfig /etc/rancher/rke2/rke2.yaml get node -ojsonpath='{.items[*].metadata.name}') ; "
@@ -323,7 +329,7 @@ parameters:
     description: "The name of the snapshot"
 mainSteps:
 - action: aws:runShellScript
-  name: StopServer
+  name: TakeSnapshot
   isEnd: true
   inputs:
     runCommand:
@@ -342,10 +348,10 @@ resource "aws_ssm_document" "update_kubeconfig" {
   content = <<DOC
 schemaVersion: '2.2'
 description: |
-  Take RKE2 snapshot.
+  Update RKE2 kubeconfig file.
 mainSteps:
 - action: aws:runShellScript
-  name: StopServer
+  name: PutKubeConfig
   isEnd: true
   inputs:
     runCommand:
