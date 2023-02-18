@@ -155,3 +155,13 @@ variable "internal_zone_id" {
   type        = string
   default     = null
 }
+
+variable "addons" {
+  description = "Addon configurations"
+  type = object({
+    aws_ebs_csi_driver = optional(string, "latest")
+  })
+  default = {
+    aws_ebs_csi_driver = "none"
+  }
+}

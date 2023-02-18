@@ -81,14 +81,17 @@ locals {
     extra_ssh_keys : local.extra_ssh_keys
     bucket : module.bucket.bucket.s3_bucket_id
     server : local.server_fqdn
-    api_endpoint : local.api_endpoint
-    rke2_version : local.rke2_version
+  }
+
+  cloud_config = {
     eip_allocation_id : try(local.seed_eip.id, "")
     zone_id : try(aws_route53_zone.private[0].id, try(data.aws_route53_zone.private[0].id, ""))
     api_tg_arn : local.use_eip ? "" : aws_lb_target_group.kube_api[0].arn
     in_api_tg_arn : local.use_eip ? "" : aws_lb_target_group.cluster_api[0].arn
     in_srv_tg_arn : local.use_eip ? "" : aws_lb_target_group.cluster_server[0].arn
   }
+
+  addon_config = var.addons
 
   # Server taints
   add_server_taint = var.add_server_taint

@@ -7,15 +7,9 @@ ssh_authorized_keys:
 %{ endif }
 runcmd:
 - apt-get update && sudo apt-get install -y apt-transport-https gnupg2 jq iptables
-- curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-- echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
-- apt-get update
-- apt-get install -y kubectl
 - apt-get install -y python3-pip
 - pip3 install awscli
-- curl -sfL https://get.rke2.io | ${rke2_version} INSTALL_RKE2_TYPE="agent" sh -
-- mkdir -p /etc/rancher/rke2/
-- aws s3 cp s3://${bucket}/config/agent.yaml /etc/rancher/rke2/config.yaml
-- printf "\n%s:\n- node.kubernetes.io/instance-id=%s\n" "node-label" "$(curl -s http://169.254.169.254/latest/meta-data/instance-id)" | tee -a /etc/rancher/rke2/config.yaml
-- systemctl enable rke2-agent.service
-- systemctl start rke2-agent.service
+
+- mkdir -p /etc/rancher/rke2
+- aws s3 cp s3://${bucket}/config/setup-agent.sh /etc/rancher/rke2/
+- bash /etc/rancher/rke2/setup-agent.sh

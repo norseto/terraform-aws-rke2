@@ -8,10 +8,10 @@ include "env" {
 }
 
 inputs = merge(include.env.inputs, {
-  control_plane: merge(include.env.inputs.control_plane, {
+  control_plane : merge(include.env.inputs.control_plane, {
     subnet_ids : dependency.vpc.outputs.private_subnets
   }),
-  agent: merge(include.env.inputs.agent, {
+  agent : merge(include.env.inputs.agent, {
     subnet_ids : dependency.vpc.outputs.private_subnets
   }),
 })

@@ -27,5 +27,5 @@ etcd-s3: true
 etcd-s3-bucket: ${bucket_name}
 etcd-s3-region: ${bucket_region}
 etcd-s3-folder: etcd-backup
-etcd-snapshot-schedule-cron: "0 */4 * * *"
-etcd-snapshot-retention: 42
+etcd-snapshot-schedule-cron: "0 0 * * *"
+etcd-snapshot-retention: 14

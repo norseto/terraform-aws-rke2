@@ -21,3 +21,6 @@ Add
 - Better restore automation.
 ### v0.4.1
 - Fixed to reboot agents.
+### v0.4.2
+- Refactor initial process.
+- Add suport EBS-CSI Driver. Use addon.aws_ebs_csi_driver = "latest".

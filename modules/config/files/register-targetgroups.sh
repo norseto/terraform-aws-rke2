@@ -12,7 +12,7 @@ fi
 
 TG=$1
 PORT=$2
-MY_INSTANCE=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+MY_INSTANCE=$(ec2metadata --instance-id)
 REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
 
 ASTAT=1

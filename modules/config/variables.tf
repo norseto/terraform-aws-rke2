@@ -49,3 +49,32 @@ variable "disabled_server_charts" {
   type        = list(string)
   default     = []
 }
+
+variable "rke2_version" {
+  description = "RKE2 version"
+  type        = string
+  default     = ""
+}
+
+variable "api_endpoint" {
+  description = "API server endpoint"
+  type        = string
+}
+
+variable "cloud_config" {
+  description = "Cloud configurations"
+  type = object({
+    eip_allocation_id = optional(string, "")
+    zone_id           = optional(string, "")
+    api_tg_arn        = optional(string, "")
+    in_api_tg_arn     = optional(string, "")
+    in_srv_tg_arn     = optional(string, "")
+  })
+}
+
+variable "addon_config" {
+  description = "Addon configurations"
+  type = object({
+    aws_ebs_csi_driver = optional(string, "none")
+  })
+}

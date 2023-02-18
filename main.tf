@@ -29,7 +29,12 @@ module "configs" {
   add_server_taint       = local.add_server_taint
   disabled_server_charts = local.disabled_server_charts
   tls_san                = local.tls_san
-  tags                   = local.tags
+  rke2_version           = local.rke2_version
+  api_endpoint           = local.api_endpoint
+  cloud_config           = local.cloud_config
+  addon_config           = local.addon_config
+
+  tags = local.tags
 
   versioning = false
 }

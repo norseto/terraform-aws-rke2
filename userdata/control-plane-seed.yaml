@@ -7,61 +7,9 @@ ssh_authorized_keys:
 %{ endif }
 runcmd:
 - apt-get update && sudo apt-get install -y apt-transport-https gnupg2 jq iptables
-- curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-- echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
-- apt-get update
-- apt-get install -y kubectl
 - apt-get install -y python3-pip
 - pip3 install awscli
 
-- mkdir -p /etc/rancher/rke2/
-
-- EIPALLOCATION_ID="${eip_allocation_id}"
-- if [ ! -z "$EIPALLOCATION_ID" ] ; then
--   aws s3 cp s3://${bucket}/config/associate-eip.sh /etc/rancher/rke2/
--   aws s3 cp s3://${bucket}/config/register-private.sh /etc/rancher/rke2/
--   bash /etc/rancher/rke2/register-private.sh ${zone_id}
--   bash /etc/rancher/rke2/associate-eip.sh "$EIPALLOCATION_ID"
-- fi
-
-- API_TGARN="${api_tg_arn}"
-- IN_API_TGARN="${in_api_tg_arn}"
-- IN_SRV_TGARN="${in_srv_tg_arn}"
-- if [ ! -z "$API_TGARN" -a ! -z "$IN_API_TGARN" -a ! -z "$IN_SRV_TGARN" ] ; then
--   aws s3 cp s3://${bucket}/config/register-targetgroups.sh /etc/rancher/rke2/
--   bash /etc/rancher/rke2/register-targetgroups.sh $API_TGARN 6443
--   bash /etc/rancher/rke2/register-targetgroups.sh $IN_API_TGARN 6443
--   bash /etc/rancher/rke2/register-targetgroups.sh $IN_SRV_TGARN 9345
-- fi
-
-- while :; do
--   curl -sfL https://get.rke2.io | ${rke2_version} sh -
--   if [ -f /usr/local/lib/systemd/system/rke2-server.service ] ; then break; fi
-- done
-
-- aws s3 cp s3://${bucket}/config/install-etcd.sh /etc/rancher/rke2/
-- bash /etc/rancher/rke2/install-etcd.sh
-
-- aws s3 cp s3://${bucket}/config/control-plane-init.yaml /etc/rancher/rke2/
-- aws s3 cp s3://${bucket}/config/control-plane.yaml /etc/rancher/rke2/
-
-- curl -s --insecure --connect-timeout 5 https://${server}:9345/cacerts>/dev/null; FIRST=$?
-- if [ $FIRST -ne 0 ] ; then
--   cp /etc/rancher/rke2/control-plane-init.yaml /etc/rancher/rke2/config.yaml
-- else
--   cp /etc/rancher/rke2/control-plane.yaml /etc/rancher/rke2/config.yaml
-- fi
-
-- systemctl enable rke2-server.service
-- systemctl start rke2-server.service
-
-- if [ $FIRST -ne 0 ] ; then
--   grep 127.0.0.1 /etc/rancher/rke2/rke2.yaml >/dev/null; STARTED=$?
--   while [ $STARTED -ne 0 ]
--   do
--     sleep 3
--     grep 127.0.0.1 /etc/rancher/rke2/rke2.yaml >/dev/null; STARTED=$?
--   done
--   sed -e 's/127.0.0.1/${api_endpoint}/g' /etc/rancher/rke2/rke2.yaml > /etc/rancher/rke2/rke2_fqdn.yaml
--   aws s3 cp /etc/rancher/rke2/rke2_fqdn.yaml s3://${bucket}/config/kubeconfig.yaml
-- fi
+- mkdir -p /etc/rancher/rke2
+- aws s3 cp s3://${bucket}/config/setup-seed.sh /etc/rancher/rke2/
+- bash /etc/rancher/rke2/setup-seed.sh

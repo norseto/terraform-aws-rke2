@@ -7,7 +7,7 @@ fi
 
 EIPALLOCATION_ID=$1
 
-MY_INSTANCE=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+MY_INSTANCE=$(ec2metadata --instance-id)
 REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
 ASTAT=1
 while [ $ASTAT -ne 0 ] ; do

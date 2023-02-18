@@ -8,7 +8,7 @@ fi
 ZONE_ID="$1"
 REG_TEMP_FILE=/tmp/reg_template.json
 REG_FILE=/tmp/reg.json
-LOCAL_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+LOCAL_IP=$(ec2metadata --local-ipv4)
 cat <<_EOF > $REG_TEMP_FILE
 {
   "Changes": [{
