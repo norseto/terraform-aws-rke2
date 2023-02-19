@@ -24,3 +24,6 @@ Add
 ### v0.4.2
 - Refactor initial process.
 - Add suport EBS-CSI Driver. Use addon.aws_ebs_csi_driver = "latest".
+### v0.4.3
+- Add IAM Policy automatically when EBS-CSI Driver is specified.
+

@@ -48,12 +48,17 @@ locals {
   seed_pool     = merge(local.server_pools[0], { max_size : 1 })
   replica_pools = length(local.server_pools) > 1 ? slice(local.server_pools, 1, length(local.server_pools)) : []
 
+  addon_config = var.addons
+  ebs_policy = local.addon_config.aws_ebs_csi_driver == "none" ? {} : {
+    ebs-csi-driver : "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  }
+
   agent_policies = merge(
-    local.agent.policy,
+    local.agent.policy, local.ebs_policy,
     { s3bucket-policy : module.bucket.read_only_policy.arn }
   )
   server_policies = merge(
-    local.control_plane.policy,
+    local.control_plane.policy, local.ebs_policy,
     {
       AmazonEC2ReadOnlyAccess : "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
       s3bucket-policy : module.bucket.read_write_policy.arn
@@ -90,8 +95,6 @@ locals {
     in_api_tg_arn : local.use_eip ? "" : aws_lb_target_group.cluster_api[0].arn
     in_srv_tg_arn : local.use_eip ? "" : aws_lb_target_group.cluster_server[0].arn
   }
-
-  addon_config = var.addons
 
   # Server taints
   add_server_taint = var.add_server_taint
