@@ -87,6 +87,7 @@ variable "control_plane" {
       instance_types         = list(string)
       instances_distribution = any
       cpu_credits            = optional(string)
+      monitoring             = optional(bool, false)
     }))
   })
 }
@@ -109,6 +110,7 @@ variable "agent" {
       instance_types   = optional(list(string), ["t3.medium"])
       volume_size      = optional(number, 20)
       cpu_credits      = optional(string)
+      monitoring       = optional(bool, false)
 
       ignore_desired_capacity_changes = optional(bool, true)
 

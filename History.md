@@ -26,4 +26,6 @@ Add
 - Add suport EBS-CSI Driver. Use addon.aws_ebs_csi_driver = "latest".
 ### v0.4.3
 - Add IAM Policy automatically when EBS-CSI Driver is specified.
+### v0.4.4
+- Add monitoring attribute and set turned off by default.
 

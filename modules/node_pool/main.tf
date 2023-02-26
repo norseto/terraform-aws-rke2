@@ -57,6 +57,8 @@ module "node_pool" {
   key_name  = local.ssh_key_name
   user_data = local.user_data
 
+  enable_monitoring = each.value.monitoring
+
   block_device_mappings = [
     {
       device_name : "/dev/sda1"

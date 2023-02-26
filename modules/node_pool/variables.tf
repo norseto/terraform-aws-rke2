@@ -86,6 +86,7 @@ variable "pools" {
     instance_types   = list(string)
     cpu_credits      = optional(string, "standard")
     volume_size      = optional(number, 20)
+    monitoring       = optional(bool, false)
 
     ignore_desired_capacity_changes = optional(bool, true)
 
