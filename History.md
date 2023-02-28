@@ -30,4 +30,6 @@ Add
 - Add monitoring attribute and set turned off by default.
 ### v0.4.5
 - Add auto restore.
+### v0.4.6
+- Fix issue: agent script.
 

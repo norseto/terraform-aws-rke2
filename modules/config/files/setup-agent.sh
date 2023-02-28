@@ -18,4 +18,4 @@ printf "kubelet-arg+:\n- node-ip=%s" "$(ec2metadata --local-ipv4)\n" > /etc/ranc
 if [ "$STARTUP" = "true" ] ; then
   systemctl enable rke2-agent.service
   systemctl start rke2-agent.service
-if
+fi
