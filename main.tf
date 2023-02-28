@@ -22,8 +22,9 @@ module "bucket" {
 module "configs" {
   source = "./modules/config"
 
+  cluster_name           = local.base_name
+  region                 = module.bucket.bucket.s3_bucket_region
   bucket_id              = module.bucket.bucket.s3_bucket_id
-  bucket_region          = module.bucket.bucket.s3_bucket_region
   token                  = local.token
   server_fqdn            = local.server_fqdn
   add_server_taint       = local.add_server_taint
@@ -75,6 +76,7 @@ module "control_plane" {
   use_asg = false
   single  = false
 
+  os_type      = local.os_type
   ssh_key_name = local.ssh_key_name
   security_group_ids = concat(local.control_plane.security_group_ids,
     [
@@ -109,6 +111,7 @@ module "control_plane_seed" {
   use_asg = false
   single  = true
 
+  os_type      = local.os_type
   ssh_key_name = local.ssh_key_name
   security_group_ids = concat(local.control_plane.security_group_ids,
     [
@@ -144,6 +147,7 @@ module "agent" {
   use_asg = true
   single  = false
 
+  os_type            = local.os_type
   ssh_key_name       = local.ssh_key_name
   security_group_ids = concat(local.agent.security_group_ids, [module.inter_cluster_sg.security_group_id])
   allocate_public_ip = local.use_eip ? true : local.agent.allocate_public_ip

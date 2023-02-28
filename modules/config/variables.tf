@@ -1,9 +1,14 @@
+variable "cluster_name" {
+  description = "cluster full name"
+  type        = string
+}
+
 variable "bucket_id" {
   description = "bucket id"
   type        = string
 }
 
-variable "bucket_region" {
+variable "region" {
   description = "bucket region"
   type        = string
 }

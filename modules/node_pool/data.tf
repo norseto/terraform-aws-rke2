@@ -22,3 +22,30 @@ data "aws_ami" "this" {
     values = ["x86_64"]
   }
 }
+
+data "aws_ami" "openSUSE" {
+  most_recent = true
+  owners      = ["679593333241"]
+
+  filter {
+    name = "name"
+    values = [
+      "openSUSE-Leap-15-*"
+    ]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}

@@ -11,7 +11,7 @@ locals {
     })
   ]
 
-  instance_ami = data.aws_ami.this.id
+  instance_ami = local.ami_dict[var.os_type]
 
   ssh_key_name   = var.ssh_key_name
   extra_ssh_keys = var.extra_ssh_keys
@@ -39,5 +39,10 @@ locals {
     diversified : "prioritized"
     capacity-optimized : "prioritized"
     capacity-optimized-prioritized : "prioritized"
+  }
+
+  ami_dict = {
+    Ubuntu : data.aws_ami.this.id
+    openSUSE : data.aws_ami.openSUSE.id
   }
 }

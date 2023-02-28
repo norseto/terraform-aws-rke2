@@ -53,15 +53,18 @@ locals {
     ebs-csi-driver : "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
   }
 
+  addon_policy = merge(local.ebs_policy)
+
   agent_policies = merge(
-    local.agent.policy, local.ebs_policy,
+    local.agent.policy, local.addon_policy,
     { s3bucket-policy : module.bucket.read_only_policy.arn }
   )
   server_policies = merge(
-    local.control_plane.policy, local.ebs_policy,
+    local.control_plane.policy, local.addon_policy,
     {
       AmazonEC2ReadOnlyAccess : "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
       s3bucket-policy : module.bucket.read_write_policy.arn
+      restore-policy : module.restore_policy.arn
     },
     local.use_eip ? {
       eip-policy : aws_iam_policy.eip_associate_policy[0].arn
@@ -86,6 +89,8 @@ locals {
     extra_ssh_keys : local.extra_ssh_keys
     bucket : module.bucket.bucket.s3_bucket_id
     server : local.server_fqdn
+    os_type : local.os_type
+    startup : local.startup
   }
 
   cloud_config = {
@@ -106,4 +111,8 @@ locals {
   event_bus_agent      = length(local.agent_asg_groupnames) > 0
 
   event_bus = local.event_bus_agent
+
+  # For OS variation
+  os_type = var.os_type
+  startup = var.startup
 }

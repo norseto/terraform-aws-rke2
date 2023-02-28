@@ -6,10 +6,24 @@ ssh_authorized_keys:
 %{ endfor }
 %{ endif }
 runcmd:
-- apt-get update && sudo apt-get install -y apt-transport-https gnupg2 jq iptables
-- apt-get install -y python3-pip
-- pip3 install awscli
+- |
+  case "${os_type}" in
+  "Ubuntu")
+    apt-get update && sudo apt-get install -y iptables python3-pip
+    pip3 install awscli
+    ;;
+  "openSUSE")
+    mkdir /tmp/ssm
+    (
+      cd /tmp/ssm; \
+      wget https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm; \
+      rpm --install amazon-ssm-agent.rpm; \
+    )
+    systemctl enable amazon-ssm-agent
+    systemctl start amazon-ssm-agent
+    ;;
+  esac
 
 - mkdir /etc/rancher/rke2
 - aws s3 cp s3://${bucket}/config/setup-server.sh /etc/rancher/rke2/
-- bash /etc/rancher/rke2/setup-server.sh
+- bash /etc/rancher/rke2/setup-server.sh "${startup}" "${os_type}"

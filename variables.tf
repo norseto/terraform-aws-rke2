@@ -74,7 +74,7 @@ variable "control_plane" {
   description = "control plane configurations"
   type = object({
     subnet_ids         = list(string)
-    security_group_ids = list(string)
+    security_group_ids = optional(list(string), [])
     allocate_public_ip = bool
     policy             = optional(map(string), {})
     # Single instance uses EIP
@@ -98,7 +98,7 @@ variable "agent" {
   description = "control plane configurations"
   type = object({
     subnet_ids         = list(string)
-    security_group_ids = list(string)
+    security_group_ids = optional(list(string), [])
     allocate_public_ip = bool
     policy             = optional(map(string), {})
     target_group_arns  = optional(list(string), [])
@@ -161,9 +161,25 @@ variable "internal_zone_id" {
 variable "addons" {
   description = "Addon configurations"
   type = object({
-    aws_ebs_csi_driver = optional(string, "latest")
+    aws_ebs_csi_driver = optional(string, "none")
   })
   default = {
     aws_ebs_csi_driver = "none"
   }
+}
+
+variable "os_type" {
+  description = "Type of Operating System. Ubuntu or openSUSE"
+  type        = string
+  default     = "Ubuntu"
+  validation {
+    condition     = contains(["Ubuntu", "openSUSE"], var.os_type)
+    error_message = "os_type should be Ubuntu or openSUSE."
+  }
+}
+
+variable "startup" {
+  description = "Enable and start RKE2"
+  type        = bool
+  default     = true
 }

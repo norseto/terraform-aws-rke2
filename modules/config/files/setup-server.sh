@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
+STARTUP=$1
+OSTYPE=$2
+
 mkdir -p /etc/rancher/rke2/config.yaml.d
+mkdir -p /var/lib/rancher/rke2/server/manifests
 
 while :; do
   curl -sfL https://get.rke2.io | ${rke2_version} sh -
@@ -25,7 +29,9 @@ aws s3 cp s3://${bucket_name}/config/control-plane.yaml /etc/rancher/rke2/
 cp /etc/rancher/rke2/control-plane.yaml /etc/rancher/rke2/config.yaml
 
 printf "node-label+:\n- node.kubernetes.io/instance-id=%s\n" "$(ec2metadata --instance-id)" > /etc/rancher/rke2/config.yaml.d/10-node-label.yaml
-printf "kubelet-arg+:\n- node-ip=%s" "$(ec2metadata --local-ipv4)" > /etc/rancher/rke2/config.yaml.d/99-node-ip.yaml
+printf "kubelet-arg+:\n- node-ip=%s" "$(ec2metadata --local-ipv4)\n" > /etc/rancher/rke2/config.yaml.d/99-node-ip.yaml
 
-systemctl enable rke2-server.service
-systemctl start rke2-server.service
+if [ "$STARTUP" = "true" ] ; then
+  systemctl enable rke2-server.service
+  systemctl start rke2-server.service
+fi

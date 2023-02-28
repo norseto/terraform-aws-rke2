@@ -106,3 +106,13 @@ variable "placement_group" {
   type        = string
   default     = null
 }
+
+variable "os_type" {
+  description = "Type of Operating System. Ubuntu or openSUSE"
+  type        = string
+  default     = "Ubuntu"
+  validation {
+    condition     = contains(["Ubuntu", "openSUSE"], var.os_type)
+    error_message = "os_type should be Ubuntu or openSUSE."
+  }
+}

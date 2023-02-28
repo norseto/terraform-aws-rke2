@@ -1,3 +1,28 @@
+
+data "aws_iam_policy_document" "restore_policy" {
+  statement {
+    actions = [
+      "ssm:StartAutomationExecution"
+    ]
+    resources = [
+      replace("${aws_ssm_document.restore_rke2.arn}:*", ":document/", ":automation-definition/")
+    ]
+  }
+}
+
+module "restore_policy" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
+  version = "5.3.0"
+
+  name   = "${local.base_name}-restore-rke2-policy"
+  policy = data.aws_iam_policy_document.restore_policy.json
+
+  tags = {
+    Name : "${local.base_name}-restore-rke2-policy"
+    Cluster : local.base_name
+  }
+}
+
 resource "aws_ssm_document" "restore_rke2" {
   name            = "${local.base_name}-restore-rke2"
   document_format = "YAML"
@@ -190,26 +215,6 @@ mainSteps:
       Values: [ "${local.base_name}" ]
     - Key: tag:Role
       Values: [ "agent" ]
-
-- name: RefreshConfig
-  action: 'aws:runCommand'
-  description: |
-    ## RefreshConfig
-    Refresh kubeconfig file.
-    ## outputs
-    * Output: Result
-  timeoutSeconds: 600
-  maxAttempts: 3
-  onFailure: Abort
-  inputs:
-    DocumentName: ${aws_ssm_document.update_kubeconfig.name}
-    ServiceRoleArn: "${aws_iam_role.ssm_run_command_role.arn}"
-    Targets:
-    - Key: tag:ClusterName
-      Values: [ "${local.base_name}" ]
-    - Key: tag:Role
-      Values: [ "control-plane-seed" ]
-
 DOC
   tags = {
     Cluster : local.base_name
@@ -317,23 +322,43 @@ DOC
 resource "aws_ssm_document" "take_snapshot" {
   name            = "${local.base_name}-snapshot-rke2"
   document_format = "YAML"
-  document_type   = "Command"
+  document_type   = "Automation"
+  target_type     = "/AWS::AWS::EC2::Instance"
 
   content = <<DOC
-schemaVersion: '2.2'
-description: |
-  Take RKE2 snapshot.
+description: |-
+  ### Document name - ${local.base_name}-snapshot-rke2
+  ## What does this document do?
+  Take snapshot RKE2 ${local.base_name} cluster.
+  ## Input Parameters
+  * Backup: (Required) Backup file name to restore.
+  ## Output Parameters
+  * TakeSnapshot.Output: Take snapshot result.
+schemaVersion: '0.3'
+assumeRole: "${aws_iam_role.ssm_run_command_role.arn}"
+outputs:
+- TakeSnapshot.Output
 parameters:
-  Name:
-    type: String
-    description: "The name of the snapshot"
+  Backup:
+    type: "String"
+    description: "(Required) Backup name"
+
 mainSteps:
-- action: aws:runShellScript
-  name: TakeSnapshot
-  isEnd: true
+- name: TakeSnapshot
+  action: 'aws:runCommand'
+  timeoutSeconds: 600
+  maxAttempts: 3
+  onFailure: Abort
   inputs:
-    runCommand:
-    - "rke2 etcd-snapshot save --name {{ Name }}"
+    DocumentName: 'AWS-RunShellScript'
+    Parameters:
+      commands:
+      - "rke2 etcd-snapshot save --name {{ Backup }}"
+    Targets:
+    - Key: tag:ClusterName
+      Values: [ "${local.base_name}" ]
+    - Key: tag:Role
+      Values: [ "control-plane-seed" ]
 DOC
   tags = {
     Cluster : local.base_name
@@ -342,21 +367,37 @@ DOC
 
 resource "aws_ssm_document" "update_kubeconfig" {
   name            = "${local.base_name}-updateconfig-rke2"
+  document_type   = "Automation"
   document_format = "YAML"
-  document_type   = "Command"
+  target_type     = "/AWS::AWS::EC2::Instance"
 
   content = <<DOC
-schemaVersion: '2.2'
-description: |
-  Update RKE2 kubeconfig file.
+description: |-
+  ### Document name - ${local.base_name}-updateconfig-rke2
+  ## What does this document do?
+  Get kubeconfig file to S3 bucket for ${local.base_name} cluster.
+schemaVersion: '0.3'
+assumeRole: "${aws_iam_role.ssm_run_command_role.arn}"
+outputs:
+- UpdateConfig.Output
+parameters: {}
 mainSteps:
-- action: aws:runShellScript
-  name: PutKubeConfig
-  isEnd: true
+- name: UpdateConfig
+  action: 'aws:runCommand'
+  timeoutSeconds: 600
+  maxAttempts: 3
+  onFailure: Abort
   inputs:
-    runCommand:
-    - "sed -e 's/127.0.0.1/${local.api_endpoint}/g' /etc/rancher/rke2/rke2.yaml > /etc/rancher/rke2/rke2_fqdn.yaml"
-    - "aws s3 cp /etc/rancher/rke2/rke2_fqdn.yaml s3://${module.bucket.bucket.s3_bucket_id}/config/kubeconfig.yaml"
+    DocumentName: 'AWS-RunShellScript'
+    Parameters:
+      commands:
+      - "sed -e 's/127.0.0.1/${local.api_endpoint}/g' /etc/rancher/rke2/rke2.yaml > /etc/rancher/rke2/rke2_fqdn.yaml"
+      - "aws s3 cp /etc/rancher/rke2/rke2_fqdn.yaml s3://${module.bucket.bucket.s3_bucket_id}/config/kubeconfig.yaml"
+    Targets:
+    - Key: tag:ClusterName
+      Values: [ "${local.base_name}" ]
+    - Key: tag:Role
+      Values: [ "control-plane-seed" ]
 DOC
   tags = {
     Cluster : local.base_name

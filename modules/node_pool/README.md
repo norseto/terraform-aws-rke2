@@ -28,6 +28,7 @@ Creates
 | Name | Type |
 |------|------|
 | [aws_ec2_fleet.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_fleet) | resource |
+| [aws_ami.openSUSE](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 
 ## Inputs
@@ -38,6 +39,7 @@ Creates
 | <a name="input_extra_ssh_keys"></a> [extra\_ssh\_keys](#input\_extra\_ssh\_keys) | extra ssh keys | `list(string)` | `[]` | no |
 | <a name="input_iam_instance_profile_arn"></a> [iam\_instance\_profile\_arn](#input\_iam\_instance\_profile\_arn) | IAM instance profile arn | `string` | n/a | yes |
 | <a name="input_instance_types"></a> [instance\_types](#input\_instance\_types) | default instance type | `list(string)` | <pre>[<br>  "t3a.medium"<br>]</pre> | no |
+| <a name="input_os_type"></a> [os\_type](#input\_os\_type) | Type of Operating System. Ubuntu or openSUSE | `string` | `"Ubuntu"` | no |
 | <a name="input_placement_group"></a> [placement\_group](#input\_placement\_group) | The name of the placement group into which you'll launch your instances, if any | `string` | `null` | no |
 | <a name="input_pools"></a> [pools](#input\_pools) | node pool configurations. | <pre>list(object({<br>    name = string<br>    # 1 will be used for seed control plane, desired for other control plane.<br>    min_size         = number<br>    max_size         = number<br>    desired_capacity = number<br>    instance_types   = list(string)<br>    cpu_credits      = optional(string, "standard")<br>    volume_size      = optional(number, 20)<br>    monitoring       = optional(bool, false)<br><br>    ignore_desired_capacity_changes = optional(bool, true)<br><br>    # For control plane, spot will be used when spot_max_price is set.<br>    instances_distribution = object({<br>      on_demand_base_capacity                  = optional(number)<br>      on_demand_allocation_strategy            = optional(string)<br>      on_demand_percentage_above_base_capacity = optional(number)<br>      spot_allocation_strategy                 = optional(string)<br>      spot_max_price                           = optional(string, null)<br>    })<br>  }))</pre> | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | prefix | `string` | `""` | no |
