@@ -76,17 +76,17 @@ resource "aws_iam_role" "ssm_run_command_role" {
   }
 }
 
-resource "aws_cloudwatch_event_rule" "delete_agent" {
-  count = local.event_bus_agent ? 1 : 0
+resource "aws_cloudwatch_event_rule" "delete_node" {
+  count = local.event_bus ? 1 : 0
 
-  name        = "${local.base_name}-delete-agent-node"
+  name        = "${local.base_name}-delete-node"
   description = "Delete terminated instance from Kubernetes cluster"
 
   event_pattern = jsonencode({
     "source" : ["aws.autoscaling"],
     "detail-type" : ["EC2 Instance Terminate Successful"]
     "detail" : {
-      "AutoScalingGroupName" : local.agent_asg_groupnames
+      "AutoScalingGroupName" : local.asg_groupnames
     }
   })
   role_arn = aws_iam_role.ssm_run_command_role.arn
@@ -95,11 +95,11 @@ resource "aws_cloudwatch_event_rule" "delete_agent" {
   }
 }
 
-resource "aws_cloudwatch_event_target" "delete_agent_cmd" {
-  count = local.event_bus_agent ? 1 : 0
+resource "aws_cloudwatch_event_target" "delete_node_cmd" {
+  count = local.event_bus ? 1 : 0
 
   arn      = "arn:aws:ssm:${local.region_name}::document/AWS-RunShellScript"
-  rule     = aws_cloudwatch_event_rule.delete_agent[0].name
+  rule     = aws_cloudwatch_event_rule.delete_node[0].name
   role_arn = aws_iam_role.ssm_run_command_role.arn
 
   input_transformer {

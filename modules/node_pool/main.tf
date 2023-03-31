@@ -29,10 +29,10 @@ module "node_pool" {
   use_mixed_instances_policy = true
   mixed_instances_policy = {
     instances_distribution = {
-      on_demand_allocation_strategy            = each.value.instances_distribution.on_demand_allocation_strategy
+      on_demand_allocation_strategy            = try(local.asg_strategy_dict_on_demand[each.value.instances_distribution.on_demand_allocation_strategy], "lowestPrice")
       on_demand_base_capacity                  = each.value.instances_distribution.on_demand_base_capacity
       on_demand_percentage_above_base_capacity = each.value.instances_distribution.on_demand_percentage_above_base_capacity
-      spot_allocation_strategy                 = each.value.instances_distribution.spot_allocation_strategy
+      spot_allocation_strategy                 = try(local.asg_strategy_dict_spot[each.value.instances_distribution.spot_allocation_strategy], "lowestPrice")
       spot_max_price                           = each.value.instances_distribution.spot_max_price
     }
     override = [

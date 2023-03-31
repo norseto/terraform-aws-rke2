@@ -73,7 +73,7 @@ module "control_plane" {
   source = "./modules/node_pool"
 
   prefix  = "${local.base_name}-"
-  use_asg = false
+  use_asg = !local.use_fleet_replica
   single  = false
 
   os_type      = local.os_type
@@ -108,7 +108,7 @@ module "control_plane_seed" {
   source = "./modules/node_pool"
 
   prefix  = "${local.base_name}-"
-  use_asg = false
+  use_asg = !local.use_fleet_seed
   single  = true
 
   os_type      = local.os_type

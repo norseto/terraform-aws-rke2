@@ -4,7 +4,7 @@ locals {
   env_name = local.env_vars.locals.env
   prefix   = length(local.env_name) > 0 ? "${local.env_name}-" : ""
 
-  source_base_url = "tfr:///terraform-aws-modules/security-group/aws"
+  source_base_url = "tfr:///terraform-aws-modules/security-group/aws//"
 
   target = local.globals.security_groups.ssh
   sg = merge(

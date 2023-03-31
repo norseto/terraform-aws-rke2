@@ -12,3 +12,6 @@ RUN mkdir -p /home/$REMOTE_USER/.vscode-server/extensions \
         /home/$REMOTE_USER/.aws \
     && chown -R $REMOTE_USER /home/$REMOTE_USER/.vscode-server \
         /home/$REMOTE_USER/.aws 
+RUN echo "alias k='kubectl'" >> /home/$REMOTE_USER/.bashrc \
+    && echo "alias terragrunt-all='terragrunt run-all --terragrunt-ignore-external-dependencies'" >> /home/$REMOTE_USER/.bashrc
+    

@@ -28,14 +28,27 @@ locals {
 
   tags = var.tags
 
-  strategy_dict = {
+  fleet_strategy_dict_spot = {
     lowest-price : "lowestPrice"
     diversified : "diversified"
     capacity-optimized : "capacityOptimized"
     capacity-optimized-prioritized : "capacityOptimizedPrioritized"
   }
-  strategy_dict_on_demand = {
+  fleet_strategy_dict_on_demand = {
     lowest-price : "lowestPrice"
+    diversified : "prioritized"
+    capacity-optimized : "prioritized"
+    capacity-optimized-prioritized : "prioritized"
+  }
+  asg_strategy_dict_spot = merge(local.fleet_strategy_dict_spot, {
+    lowest-price : "lowest-price"
+    diversified : "price-capacity-optimized"
+    price-capacity-optimized : "price-capacity-optimized"
+    capacity-optimized : "capacity-optimized"
+    capacity-optimized-prioritized : "capacity-optimized-prioritized"
+  })
+  asg_strategy_dict_on_demand = {
+    lowest-price : "lowest-price"
     diversified : "prioritized"
     capacity-optimized : "prioritized"
     capacity-optimized-prioritized : "prioritized"

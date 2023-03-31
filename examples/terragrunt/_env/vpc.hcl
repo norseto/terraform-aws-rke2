@@ -4,7 +4,7 @@ locals {
   env_name = local.env_vars.locals.env
   prefix   = length(local.env_name) > 0 ? "${local.env_name}-" : ""
 
-  source_base_url = "tfr:///terraform-aws-modules/vpc/aws"
+  source_base_url = "tfr:///terraform-aws-modules/vpc/aws//"
 
   vpc = merge(
     local.globals.vpc,

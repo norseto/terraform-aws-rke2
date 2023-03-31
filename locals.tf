@@ -40,12 +40,16 @@ locals {
   # Control Plane
   control_plane = merge(var.control_plane, { ssh_key_name : local.ssh_key_name })
 
+  # Use EC2Fleet for control planes.
+  use_fleet_seed    = false
+  use_fleet_replica = false
+
   # Control Plane Pools - Separate first server(seed) and others.
   server_pools = [
     for p in local.control_plane.nodepools :
     merge(p, { min_size : p.size, max_size : p.size, desired_capacity : p.size })
   ]
-  seed_pool     = merge(local.server_pools[0], { max_size : 1 })
+  seed_pool     = merge(local.server_pools[0], { max_size : 1, min_size : 1, desired_capacity : 1 })
   replica_pools = length(local.server_pools) > 1 ? slice(local.server_pools, 1, length(local.server_pools)) : []
 
   addon_config = var.addons
@@ -107,10 +111,12 @@ locals {
   disabled_server_charts = var.disabled_server_charts
 
   # For Events
-  agent_asg_groupnames = module.agent.autoscaling_group_names
-  event_bus_agent      = length(local.agent_asg_groupnames) > 0
-
-  event_bus = local.event_bus_agent
+  asg_groupnames = concat(
+    module.control_plane_seed.autoscaling_group_names,
+    try(module.control_plane[0].autoscaling_group_names, []),
+    module.agent.autoscaling_group_names
+  )
+  event_bus = true
 
   # For OS variation
   os_type = var.os_type

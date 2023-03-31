@@ -33,3 +33,7 @@ Add
 ### v0.4.6
 - Fix issue: agent script.
 
+## v0.5
+### v0.5.0
+- Control-Plane: Now managed by not EC2 Fleet but ASG.
+
