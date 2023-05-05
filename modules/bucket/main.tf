@@ -5,7 +5,7 @@
 
 module "bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "3.6.0"
+  version = "3.10.1"
 
   bucket = local.bucket
   acl    = "private"
@@ -13,6 +13,9 @@ module "bucket" {
   versioning = {
     enabled = local.versioning
   }
+
+  control_object_ownership = true
+  object_ownership         = "ObjectWriter"
 
   lifecycle_rule = [{
     id : "Backup expiration"

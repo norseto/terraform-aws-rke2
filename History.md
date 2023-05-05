@@ -36,4 +36,7 @@ Add
 ## v0.5
 ### v0.5.0
 - Control-Plane: Now managed by not EC2 Fleet but ASG.
+### v0.5.1
+- Fix S3 spec change for default public access blocking.
+
 
